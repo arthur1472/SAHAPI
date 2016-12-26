@@ -111,6 +111,16 @@
 					}
 				break;
 
+				case "prikbord_kan_niet":
+					if (checkToken($token)) {
+						if (isset($id) && is_numeric($id)) {
+							$encoded = json_encode($sah->prikbordKanNiet($token,$id));
+							$encoded = str_replace("\u00a0", " ", $encoded);
+							echo $encoded;
+						}
+					}
+					break;
+
 				/*case "prikbord_afgesloten":
 					if (isset($_GET['token'])) {
 						echo $sah->actueelPrikbord($_GET['token']);

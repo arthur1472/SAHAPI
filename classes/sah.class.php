@@ -375,6 +375,48 @@
 
 		}
 
+		public function prikbordKanNiet($token, $itemID) {
+			$url = "https://nl.sah3.net/students/pinboard_notes/$itemID";
+			$variables = array(
+				"token" => $token,
+				"useragent" => $this->userAgent
+			);
+			$request = $this->get($url,$variables);
+
+			if (preg_match("/https\:\/\/nl.sah3.net\/students\/pinboard_notes/", $request)) {
+				return array(
+					"error" => "invalidID",
+					"description" => "There is no item with the ID provided"
+				);
+			}
+
+			$pattern = "/\<meta name=\"csrf-token\" content=\"(?P<variabele>(.*?|\s)+)\" \/\>/";
+
+			if (preg_match_all($pattern, $request, $matches)) {
+				$authToken = urlencode($matches['variabele'][0]);
+				$url = "https://nl.sah3.net/students/pinboard_notes/$itemID";
+				$parameters = "_method=put";
+				$parameters .= "&utf8=&#x2713;";
+				$parameters .= "&authenticity_token=$authToken";
+				$parameters .= "&commit=Nee, ik kan deze afspraak niet doen";
+
+				$variables = array(
+					"post" => $parameters,
+					"login" => $token,
+					"useragent" => "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/54.0.2840.99 Safari/537.36"
+				);
+				$request = $this->post($url,$variables);
+				return array(
+					"ok" => "ok"
+				);
+			} else {
+				return array(
+					"error" => "Something wrong",
+					"description" => "Something went wrong, try again later."
+				);
+			}
+		}
+
 		public function prikbordItem($token, $itemID) {
 			$url = "https://nl.sah3.net/students/pinboard_notes/$itemID";
 			$variables = array(
