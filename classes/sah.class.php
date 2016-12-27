@@ -29,8 +29,76 @@
 			}			
 		}
 
-		public function krijgAfspraken($token, $week = "") {
+		public function krijgAfspraken($token, $week = "", $jaar = "") {
 			$url = "https://nl.sah3.net/students/calendar";
+			$startDate = "";
+
+			if ($week != "" && $jaar != "") {
+				if (is_numeric($week) && is_numeric($jaar)) {
+					$timeNow = time();
+					$thisYear = date("Y", time());
+					$thisWeek = date("W", time());
+
+					$weeksBetween = 0;
+					$yearsBetween = 0;
+
+					if ($jaar > 2000 && $jaar < 2200) {
+						$yearsBetween = $thisYear - $jaar;
+						echo $yearsBetween."<br>";
+					}
+
+					if ($week > 0 && $week < 53) {
+						$weeksBetween = $thisWeek - $week;
+						echo $weeksBetween."<br>";
+					}
+
+					$timeToSubstract = ($yearsBetween * 31556926) + ($weeksBetween * 604800) + 604800;
+					$timeNow = $timeNow - $timeToSubstract;
+					$timeNow = $timeNow - ((date("w", $timeNow) - 1) * 86400);
+
+					$startDate = date("Y-m-d", $timeNow);
+				}
+			} else if ($week != "") {
+				if (is_numeric($week)) {
+					$timeNow = time();
+					$thisWeek = date("W", time());
+
+					$weeksBetween = 0;
+
+					if ($week > 0 && $week < 53) {
+						$weeksBetween = $thisWeek - $week;
+						echo $weeksBetween."<br>";
+					}
+
+					$timeToSubstract = ($weeksBetween * 604800) + 604800;
+					$timeNow = $timeNow - $timeToSubstract;
+					$timeNow = $timeNow - ((date("w", $timeNow) - 1) * 86400);
+
+					$startDate = date("Y-m-d", $timeNow);
+				}
+			} else if ($jaar != "") {
+				if (is_numeric($jaar)) {
+					$timeNow = time();
+					$thisYear = date("Y", time());
+					$yearsBetween = 0;
+
+					if ($jaar > 2000 && $jaar < 2200) {
+						$yearsBetween = $thisYear - $jaar;
+						echo $yearsBetween."<br>";
+					}
+
+					$timeToSubstract = ($yearsBetween * 31556926) + 604800;
+					$timeNow = $timeNow - $timeToSubstract;
+					$timeNow = $timeNow - ((date("w", $timeNow) - 1) * 86400);
+
+					$startDate = date("Y-m-d", $timeNow);
+				}
+			}
+
+			if ($startDate != "") {
+				$url .= "?start_day=".$startDate;
+			}
+
 			//$url = "https://nl.sah3.net/students/calendar?start_day=2015-9-30";
 			$variables = array(
 				"token" => $token,

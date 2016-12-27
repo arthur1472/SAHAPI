@@ -12,7 +12,9 @@
 		"id",
 		"offset",
 		"email",
-		"password"
+		"password",
+		"week",
+		"jaar"
 		);
 
 	foreach ($parameters as $parameter) {
@@ -49,7 +51,17 @@
 			switch($action) {
 				case "afspraken":
 					if (checkToken($token)) {
-						echo json_encode($sah->krijgAfspraken($token));
+						$afspraken = "";
+						if (isset($week) && isset($jaar)) {
+							$afspraken = $sah->krijgAfspraken($token, $week, $jaar);
+						} else if (isset($week)) {
+							$afspraken = $sah->krijgAfspraken($token, $week);
+						} else if (isset($jaar)) {
+							$afspraken = $sah->krijgAfspraken($token, "", $jaar);
+						} else {
+							$afspraken = $sah->krijgAfspraken($token);
+						}
+						echo json_encode($afspraken);
 					}
 					break;
 
