@@ -44,12 +44,10 @@
 
 					if ($jaar > 2000 && $jaar < 2200) {
 						$yearsBetween = $thisYear - $jaar;
-						echo $yearsBetween."<br>";
 					}
 
 					if ($week > 0 && $week < 53) {
 						$weeksBetween = $thisWeek - $week;
-						echo $weeksBetween."<br>";
 					}
 
 					$timeToSubstract = ($yearsBetween * 31556926) + ($weeksBetween * 604800) + 604800;
@@ -67,7 +65,6 @@
 
 					if ($week > 0 && $week < 53) {
 						$weeksBetween = $thisWeek - $week;
-						echo $weeksBetween."<br>";
 					}
 
 					$timeToSubstract = ($weeksBetween * 604800) + 604800;
@@ -84,7 +81,6 @@
 
 					if ($jaar > 2000 && $jaar < 2200) {
 						$yearsBetween = $thisYear - $jaar;
-						echo $yearsBetween."<br>";
 					}
 
 					$timeToSubstract = ($yearsBetween * 31556926) + 604800;
