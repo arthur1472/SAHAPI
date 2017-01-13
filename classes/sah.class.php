@@ -533,6 +533,160 @@
  			return $item;
 		}
 
+		public function taak($token, $itemID) {
+			$url = "https://nl.sah3.net/students/tasks/". $itemID;
+			$variables = array(
+				"token" => $token,
+				"useragent" => $this->userAgent
+			);
+			$request = $this->get($url,$variables);
+			$this->lastPage = $request;
+
+		}
+
+		public function takenAlles($token) {
+			$taken = array();
+
+			$url = "https://nl.sah3.net/students/tasks";
+			$variables = array(
+				"token" => $token,
+				"useragent" => $this->userAgent
+			);
+			$request = $this->get($url,$variables);
+			$this->lastPage = $request;
+
+			$content = explode("</header>", $request)[2];
+			$content = explode("</main>", $content)[0];
+
+			$items = explode("</section>", $content);
+
+			foreach ($items as $item) {
+
+				if(preg_match("/\<h2\>Later/", $item) || preg_match("/\<h2\>Te laat/", $item) || preg_match("/\<h2\>Vandaag/", $item)) {
+					$fields = explode("<tr class=\"\">", $item);
+					foreach ($fields as $key => $field) {
+						$itemArray = array();
+
+						if (preg_match_all("/<label for=\"completed_(\d+)\">(?P<variabele>(.*?|\s)+)<\/label>/", $field, $matches)) {
+							$itemArray['omschrijving'] = $matches['variabele'][0];
+						}
+
+						if (preg_match_all("/<td data-th=\"Klant\" class=\"tasks-customer\">(?P<naam>(.*?|\s)+)<br>((?P<klantnr>(.*?|\s)+))<\/td>/", $field, $matches)) {
+							$itemArray['klant_naam'] = $matches['naam'][0];
+							$itemArray['klant_nummer'] = str_replace(")", "",str_replace("(", "", $matches['klantnr'][0]));
+						}
+
+						if (preg_match_all("/<td data-th=\"Vervaldatum\" class=\"tasks-due\">(?P<variabele>(.*?|\s)+)<\/td>/", $field, $matches)) {
+							$itemArray['vervaldatum'] = $matches['variabele'][0];
+						}
+
+						if (preg_match_all("/<td><a href=\"\/students\/tasks\/(?P<variabele>(.*?|\s)+)\" class=\"button-view\">Details<\/a><\/td>/", $field, $matches)) {
+							$itemArray['taakid'] = $matches['variabele'][0];
+						}
+
+						if (!empty($itemArray)) {
+							if (preg_match("/\<h2\>Later/", $item)) {
+								$itemArray['status'] = "later";
+							} else if (preg_match("/\<h2\>Te laat/", $item)) {
+								$itemArray['status'] = "te laat";
+							} else if (preg_match("/\<h2\>Vandaag/", $item)) {
+								$itemArray['status'] = "vandaag";
+							}
+
+							$taken[] = $itemArray;
+						}
+					}
+				}
+
+				/*if (preg_match("/\<h2\>Te laat/", $item)) {
+					$fields = explode("</tr>", $item);
+					foreach ($fields as $field) {
+						if (preg_match_all("/<label for=\"completed_(\d+)\">(?P<variabele>(.*?|\s)+)<\/label>/", $field, $matches)) {
+							$itemArray['omschrijving'] = $matches['variabele'][0];
+						}
+
+						if (preg_match_all("/<td data-th=\"Klant\" class=\"tasks-customer\">(?P<naam>(.*?|\s)+)<br>((?P<klantnr>(.*?|\s)+))<\/td>/", $field, $matches)) {
+							$itemArray['klant_naam'] = $matches['naam'][0];
+							$itemArray['klant_nummer'] = str_replace(")", "",str_replace("(", "", $matches['klantnr'][0]));
+						}
+
+						if (preg_match_all("/<td data-th=\"Vervaldatum\" class=\"tasks-due\">(?P<variabele>(.*?|\s)+)<\/td>/", $field, $matches)) {
+							$itemArray['vervaldatum'] = $matches['variabele'][0];
+						}
+
+						if (preg_match_all("/<td><a href=\"\/students\/tasks\/(?P<variabele>(.*?|\s)+)\" class=\"button-view\">Details<\/a><\/td>/", $field, $matches)) {
+							$itemArray['taakid'] = $matches['variabele'][0];
+						}
+						$itemArray['status'] = "te laat";
+					}
+				}
+
+				if (preg_match("/\<h2\>Vandaag/", $item)) {
+					$fields = explode("</tr>", $item);
+					foreach ($fields as $field) {
+						if (preg_match_all("/<label for=\"completed_(\d+)\">(?P<variabele>(.*?|\s)+)<\/label>/", $field, $matches)) {
+							$itemArray['omschrijving'] = $matches['variabele'][0];
+						}
+
+						if (preg_match_all("/<td data-th=\"Klant\" class=\"tasks-customer\">(?P<naam>(.*?|\s)+)<br>((?P<klantnr>(.*?|\s)+))<\/td>/", $field, $matches)) {
+							$itemArray['klant_naam'] = $matches['naam'][0];
+							$itemArray['klant_nummer'] = str_replace(")", "",str_replace("(", "", $matches['klantnr'][0]));
+						}
+
+						if (preg_match_all("/<td data-th=\"Vervaldatum\" class=\"tasks-due\">(?P<variabele>(.*?|\s)+)<\/td>/", $field, $matches)) {
+							$itemArray['vervaldatum'] = $matches['variabele'][0];
+						}
+
+						if (preg_match_all("/<td><a href=\"\/students\/tasks\/(?P<variabele>(.*?|\s)+)\" class=\"button-view\">Details<\/a><\/td>/", $field, $matches)) {
+							$itemArray['taakid'] = $matches['variabele'][0];
+						}
+
+						$itemArray['status'] = "vandaag";
+					}
+				}*/
+
+
+			}
+
+			return $taken;
+		}
+
+		public function takenNu($token) {
+			$vandaag = array();
+			$taken = $this->takenAlles($token);
+			foreach ($taken as $taak) {
+				if ($taak['status'] == "vandaag") {
+					$vandaag[] = $taak;
+				}
+			}
+
+			return $vandaag;
+		}
+
+		public function takenLater($token) {
+			$later = array();
+			$taken = $this->takenAlles($token);
+			foreach ($taken as $taak) {
+				if ($taak['status'] == "later") {
+					$later[] = $taak;
+				}
+			}
+
+			return $later;
+		}
+
+		public function takenTeLaat($token) {
+			$teLaat = array();
+			$taken = $this->takenAlles($token);
+			foreach ($taken as $taak) {
+				if ($taak['status'] == "te laat") {
+					$teLaat[] = $taak;
+				}
+			}
+
+			return $teLaat;
+		}
+
 		public function timeout($token) {
 			$url = "https://nl.sah3.net/students/time_offs";
 			$variables = array(

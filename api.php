@@ -14,7 +14,8 @@
 		"email",
 		"password",
 		"week",
-		"jaar"
+		"jaar",
+		"antwoord"
 		);
 
 	foreach ($parameters as $parameter) {
@@ -42,8 +43,8 @@
 		}
 	}
 
-	header("Content-Type: application/json");
-	header("Access-Control-Allow-Origin: http://swagger.ownprojects.info");
+	//header("Content-Type: application/json");
+	//header("Access-Control-Allow-Origin: http://swagger.ownprojects.info");
 
 	if (isset($action)){
 		$action = explode("/", $action)[1];
@@ -157,9 +158,66 @@
 					}
 				break;*/
 
+				case "taak":
+					if (checkToken($token)) {
+						if (is_numeric($id)) {
+							echo json_encode($sah->taak($token, $id));
+						}
+					}
+				break;
+
+				/*case "taak_antwoord":
+					if (checkToken($token)) {
+						if (is_numeric($id)) {
+							if (isset($antwoord) && $antwoord != "") {
+								echo json_encode($sah->taakAntwoord($token, $id, $antwoord));
+							}
+						}
+					}
+				break;
+
+				case "taak_set_complete":
+					if (checkToken($token)) {
+						if (is_numeric($id)) {
+							echo json_encode($sah->taakSetComplete($token, $id));
+						}
+					}
+				break;
+
+				case "taak_set_not_complete":
+					if (checkToken($token)) {
+						if (is_numeric($id)) {
+							echo json_encode($sah->taakSetNotComplete($token, $id));
+						}
+					}
+				break;*/
+
+				case "taken_alles":
+					if (checkToken($token)) {
+						echo json_encode($sah->takenAlles($token));
+					}
+				break;
+
+				case "taken_nu":
+					if (checkToken($token)) {
+						echo json_encode($sah->takenNu($token));
+					}
+				break;
+
+				case "taken_later":
+					if (checkToken($token)) {
+						echo json_encode($sah->takenLater($token));
+					}
+				break;
+
+				case "taken_telaat":
+					if (checkToken($token)) {
+						echo json_encode($sah->takenTeLaat($token));
+					}
+				break;
+
 				case "timeout": 
 					if (checkToken($token)) {
-						//$sah->timeout($token);
 						echo json_encode($sah->timeout($token));
 					}
 				break;
